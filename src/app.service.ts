@@ -7,7 +7,6 @@ export class AppService {
       name: 'Nestjs blog api',
       made_by: 'Sandesh Tamang',
       address: 'Chitwan',
-      message: 'K cha Ashmita',
     };
   }
 }
