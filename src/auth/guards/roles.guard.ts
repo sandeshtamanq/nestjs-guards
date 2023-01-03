@@ -27,7 +27,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest().user;
+    const { user } = context.switchToHttp().getRequest();
     return from(this.userService.findOne(user.email)).pipe(
       map((user: User) => {
         const hasRoles = () => requiredRoles.indexOf(user.role) > -1;
