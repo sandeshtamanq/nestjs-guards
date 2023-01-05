@@ -1,7 +1,11 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+  IPaginationOptions,
+  paginate,
+  Pagination,
+} from 'nestjs-typeorm-paginate';
 import slugify from 'slugify';
-import { UserEntity } from 'src/user/models/entity/user.entity';
 import { User } from 'src/user/models/interface/user.interface';
 import { Repository } from 'typeorm';
 import { BlogEntity } from '../models/entity/blog.entity';
@@ -54,8 +58,21 @@ export class BlogService {
     return this.blogRepository.delete({ slug });
   }
 
-  getAllBlogs(): Promise<Blog[]> {
-    return this.blogRepository.find({ relations: ['author'] });
+  async paginate(options: IPaginationOptions): Promise<Pagination<Blog>> {
+    return paginate<BlogEntity>(this.blogRepository, options, {
+      relations: ['author'],
+    });
+  }
+
+  async paginateByUser(
+    options: IPaginationOptions,
+    userId: number,
+  ): Promise<Pagination<BlogEntity>> {
+    const query = this.blogRepository.createQueryBuilder('blog');
+    query
+      .where('blog.authorId = :userId', { userId })
+      .leftJoinAndSelect('blog.author', 'author');
+    return paginate<BlogEntity>(query, options);
   }
 
   generateSlug(title: string): string {

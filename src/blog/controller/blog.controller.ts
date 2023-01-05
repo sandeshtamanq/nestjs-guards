@@ -23,13 +23,40 @@ import { BlogService } from '../service/blog.service';
 export class BlogController {
   constructor(private blogService: BlogService) {}
 
+  // @Get()
+  // getBlogs(@Query('userId') userId: number): Promise<Blog[]> {
+  //   if (userId === undefined) {
+  //     return this.blogService.getAllBlogs();
+  //   } else {
+  //     return this.blogService.getByUser(Number(userId));
+  //   }
+  // }
+
   @Get()
-  getBlogs(@Query('userId') userId: number): Promise<Blog[]> {
-    if (userId === undefined) {
-      return this.blogService.getAllBlogs();
-    } else {
-      return this.blogService.getByUser(Number(userId));
-    }
+  index(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
+    limit = limit > 100 ? 100 : limit;
+    return this.blogService.paginate({
+      page,
+      limit,
+      route: 'http://localhost:3000/blog',
+    });
+  }
+
+  @Get('user/:userId')
+  indexByUser(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    limit = limit > 100 ? 100 : limit;
+    return this.blogService.paginateByUser(
+      {
+        page,
+        limit,
+        route: 'http://localhost:3000/blog',
+      },
+      userId,
+    );
   }
 
   @Post()
